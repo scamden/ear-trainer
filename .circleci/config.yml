@@ -1,0 +1,96 @@
+version: 2
+references:
+  - &working_directory ~/web-base
+  - &automerge_branch_pattern /^am-.*/
+  - &container_config
+      working_directory: *working_directory
+      docker:
+        - image: circleci/node:6.10.3
+  - &set_global_npm_permissions
+      name: Set global npm permissions
+      command: sudo chown -R $(whoami):$(id -g) /usr/local
+  - &restore_cache
+      keys:
+        - v1-dep-{{ .Branch }}-
+        - v1-dep-master-
+        - v1-dep-
+
+jobs:
+  build:
+    <<: *container_config
+    steps:
+      - checkout
+      - run: *set_global_npm_permissions
+      - restore_cache: *restore_cache
+      - run:
+          name: Update npm
+          command: >
+            npm -v | grep ^5 &&
+            echo npm is ready ||
+            (npm i -g npm3 && npm3 -g uninstall npm && npm3 i -g npm@5)
+      - run:
+          name: Install dependencies
+          command: |
+            cp -f .circleci/.npmrc ~/.npmrc
+            cp -f .circleci/.npmrc .npmrc
+            npm install
+      - run:
+          name: Run tests
+          command: npm test
+      - save_cache:
+          key: v1-dep-{{ .Branch }}-{{ epoch }}
+          paths:
+            - node_modules
+            - /usr/local/lib/node_modules # global dependencies
+
+  deploy:
+    <<: *container_config
+    steps:
+      - checkout
+      - run: *set_global_npm_permissions
+      - restore_cache: *restore_cache
+      - run:
+          name: Deploy
+          command: echo Deploy Command Placeholder      
+
+  automerge:
+    <<: *container_config
+    steps:
+      - checkout
+      - run:
+          name: Auto-Merge
+          command: |
+            git stash
+            git checkout dev
+            git reset --hard origin/dev
+            git checkout $CIRCLE_BRANCH
+            git stash pop || true
+            git fetch origin dev:dev
+            git fetch . $CIRCLE_BRANCH:dev  
+            git push origin dev
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build:
+          context: org-global
+          filters:
+            branches:
+              only:
+                - master
+                - *automerge_branch_pattern
+      - automerge:
+          requires:
+            - build
+          filters:
+            branches:
+              only: *automerge_branch_pattern
+      - deploy:
+          context: org-global
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master

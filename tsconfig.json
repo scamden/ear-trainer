@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "outDir": "dist",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "inlineSources": false,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": false,
+    "noUnusedLocals": false,
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/@types/*",
+        "*"
+      ],
+      "@src/*": [
+        "./src/*"
+      ],
+      "@cmpts/*": [
+        "./src/components/*"
+      ],
+      "_variables.scss": [
+        "./src/styles/_variables.scss"
+      ],
+      "_mixins.scss": [
+        "./src/styles/_mixins.scss"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "tslint-language-service"
+      }
+    ]
+  },
+  "compileOnSave": false,
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "awesomeTypescriptLoaderOptions": {
+    "forkChecker": true,
+    "useBabel": true,
+    "useCache": true
+  }
+}
