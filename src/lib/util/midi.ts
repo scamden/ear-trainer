@@ -12,38 +12,6 @@ require('midi/js/midi/plugin.webmidi.js');
 require('midi/js/util/dom_request_xhr.js');
 require('midi/js/util/dom_request_script.js');
 
-
-
-let midiLoaded: Promise<void>;
-
-export const setInstrument = (instrument: string) => {
-  midiLoaded = new Promise<void>((r) => {
-    MIDI.loadPlugin({
-      soundfontUrl: "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/",
-      instrument,
-      onprogress: function (state: any, progress: any) {
-        console.log(state, progress);
-      },
-      onsuccess: function () {
-        MIDI.programChange(0, MIDI.GM.byName[instrument].number);
-        // play the note
-        MIDI.setVolume(0, 127);
-        r();
-      }
-    });
-  });
-}
-
-setInstrument('acoustic_grand_piano')
-
-
-export async function playNote(note: number, delay: number = 0) {
-  await midiLoaded;
-  var velocity = 127; // how hard the note hits
-  MIDI.noteOn(0, note, velocity, delay);
-  MIDI.noteOff(0, note, delay + 1);
-}
-
 export const INSTRUMENTS = [
   "accordion",
   "acoustic_bass",
@@ -156,3 +124,35 @@ export const INSTRUMENTS = [
   "woodblock",
   "xylophone"
 ];
+
+export const midiLoaded: Promise<void> = new Promise<void>((r) => {
+  MIDI.loadPlugin({
+    soundfontUrl: "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/",
+    instruments: INSTRUMENTS,
+    onprogress: function (state: any, progress: any) {
+      console.log(state, progress);
+    },
+    onsuccess: function () {
+
+      // play the note
+      MIDI.setVolume(0, 127);
+      r();
+    }
+  });
+});
+
+export const setInstrument = async (instrument: string) => {
+  await midiLoaded;
+  MIDI.programChange(0, MIDI.GM.byName[instrument].number);
+}
+
+setInstrument('acoustic_grand_piano')
+
+
+export async function playNote(note: number, delay: number = 0) {
+  await midiLoaded;
+  var velocity = 127; // how hard the note hits
+  MIDI.noteOn(0, note, velocity, delay);
+  MIDI.noteOff(0, note, delay + 1);
+}
+

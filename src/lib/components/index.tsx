@@ -9,7 +9,7 @@ import _range = require('lodash/range');
 
 import * as classnames from 'classnames';
 
-import { playNote, INSTRUMENTS, setInstrument } from '../util/midi';
+import { playNote, INSTRUMENTS, setInstrument, midiLoaded } from '../util/midi';
 
 export interface IStateProps {
   className?: string;
@@ -29,7 +29,7 @@ export interface IState {
   shouldPlayIntervalHarmonically?: boolean;
   stats: IStats;
   options: IOptions;
-
+  loading: boolean;
 }
 
 export interface IStats {
@@ -128,8 +128,12 @@ export class MainComponent extends Component<IProps, IState> {
         total: 0,
         correct: 0,
       },
-      options
+      options,
+      loading: true
     };
+    midiLoaded.then(() => {
+      this.setState({ loading: false });
+    });
   }
 
 
@@ -182,7 +186,7 @@ export class MainComponent extends Component<IProps, IState> {
     }
     setInstrument(this.state.currentInstruments && this.state.currentInstruments[0] || 'acoustic_grand_piano');
     await playNote(state.currentNotes[0]);
-    setInstrument(this.state.currentInstruments && this.state.currentInstruments[1``] || 'acoustic_grand_piano');
+    setInstrument(this.state.currentInstruments && this.state.currentInstruments[1] || 'acoustic_grand_piano');
     await playNote(state.currentNotes[1], state.shouldPlayIntervalHarmonically ? 0 : 1);
   }
 
@@ -281,9 +285,9 @@ export class MainComponent extends Component<IProps, IState> {
         </div>
         <div className="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
           <div className="btn-group ml-3 mt-2" role="group" aria-label="Basic example">
-            <button className="btn btn-md btn-primary" onClick={() => {
+            <button className="btn btn-md btn-primary" disabled={this.state.loading} onClick={() => {
               const interval = this.playRandomInterval();
-            }}>Begin</button>
+            }}>{this.state.loading && 'Loading...' || 'Begin'}</button>
             <button className="btn btn-md btn-primary" onClick={this.repeat}>Repeat</button>
           </div>
           <div className="btn-group btn-group-toggle ml-3 mt-2" role="group" aria-label="Basic example">
@@ -338,7 +342,7 @@ export class MainComponent extends Component<IProps, IState> {
             <div className="btn-group btn-group-toggle ml-3 mt-2" role="group" aria-label="Basic example">
               <button type="button" onClick={
                 () => { this.setOptions({ mix: !this.state.options.mix }) }
-              } className={classnames({ 'active': this.state.options.mix }, "btn btn-light")}>Mix Instruments</button>
+              } className={classnames({ 'active': this.state.options.mix }, 'btn btn-light')}>Mix Instruments</button>
 
             </div>
           </div>
