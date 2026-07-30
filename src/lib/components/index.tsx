@@ -31,6 +31,23 @@ export interface IState {
   stats: IStats;
   options: IOptions;
   loading: boolean;
+  theme: ThemeMode;
+}
+
+type ThemeMode = 'system' | 'light' | 'dark';
+const THEME_MODES: ThemeMode[] = ['system', 'light', 'dark'];
+const THEME_LABELS: Record<ThemeMode, string> = {
+  system: '🖥 Auto',
+  light: '☀ Light',
+  dark: '🌙 Dark',
+};
+function applyTheme(mode: ThemeMode) {
+  const root = document.documentElement;
+  if (mode === 'system') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', mode);
+  }
 }
 
 export interface IStats {
@@ -58,8 +75,8 @@ export interface IOptions {
 
 const intervals = {
   0: 'Unison',
-  1: 'Semitone',
-  2: 'Tone',
+  1: 'Minor 2nd',
+  2: 'Major 2nd',
   3: 'Minor 3rd',
   4: 'Major 3rd',
   5: 'Perfect 4th',
@@ -124,13 +141,16 @@ export class MainComponent extends Component<IProps, IState> {
       keyType: 'Major',
       mix: false,
     };
+    const theme = (localStorage.getItem('ear-trainer-theme') as ThemeMode) || 'system';
+    applyTheme(theme);
     this.state = {
       stats: {
         total: 0,
         correct: 0,
       },
       options,
-      loading: true
+      loading: true,
+      theme,
     };
     midiLoaded.then(() => {
       this.setState({ loading: false });
@@ -255,6 +275,13 @@ export class MainComponent extends Component<IProps, IState> {
     localStorage.setItem('ear-trainer-options', JSON.stringify(options));
   }
 
+  cycleTheme = () => {
+    const next = THEME_MODES[(THEME_MODES.indexOf(this.state.theme) + 1) % THEME_MODES.length];
+    applyTheme(next);
+    localStorage.setItem('ear-trainer-theme', next);
+    this.setState({ theme: next });
+  }
+
   toggleSettings = () => {
     this.setState({ settingsOpen: !this.state.settingsOpen });
   }
@@ -278,8 +305,16 @@ export class MainComponent extends Component<IProps, IState> {
       <div className={classnames(className, 'et-app')}>
         <div className="et-card">
           <header className="et-header">
-            <h1 className="et-title">Ear Trainer</h1>
-            <p className="et-tagline">Listen, then name the interval you hear.</p>
+            <div>
+              <h1 className="et-title">Ear Trainer</h1>
+              <p className="et-tagline">Listen, then name the interval you hear.</p>
+            </div>
+            <button
+              className="et-theme-btn"
+              onClick={this.cycleTheme}
+              title="Switch theme (Auto / Light / Dark)"
+              aria-label={`Theme: ${this.state.theme}`}
+            >{THEME_LABELS[this.state.theme]}</button>
           </header>
 
           <div className="et-toolbar">

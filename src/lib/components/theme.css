@@ -17,8 +17,21 @@
   --et-radius: 18px;
 }
 
+/* Dark palette: applied when the user forces dark, or (via the media query
+ * below) when they leave the theme on Auto and their OS prefers dark. */
+:root[data-theme="dark"] {
+  --et-bg-1: #0f172a;
+  --et-bg-2: #1e1b4b;
+  --et-card: #111827;
+  --et-ink: #e2e8f0;
+  --et-muted: #94a3b8;
+  --et-line: #273244;
+  --et-surface: #0b1220;
+  --et-accent-soft: #1e293b;
+  --et-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.7);
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --et-bg-1: #0f172a;
     --et-bg-2: #1e1b4b;
     --et-card: #111827;
@@ -56,7 +69,35 @@
 
 /* Header */
 .et-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
   margin-bottom: 22px;
+}
+.et-theme-btn {
+  flex: 0 0 auto;
+  appearance: none;
+  border: 1px solid var(--et-line);
+  background: var(--et-surface);
+  color: var(--et-muted);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.et-theme-btn:hover {
+  border-color: var(--et-primary);
+  color: var(--et-primary);
+  background: var(--et-accent-soft);
+}
+.et-theme-btn:focus-visible {
+  border-color: var(--et-primary);
+  box-shadow: 0 0 0 3px var(--et-accent-soft);
 }
 .et-title {
   margin: 0;
