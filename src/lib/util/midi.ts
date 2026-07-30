@@ -128,7 +128,7 @@ export const INSTRUMENTS = [
 
 export const midiLoaded: Promise<void> = new Promise<void>((r) => {
   MIDI.loadPlugin({
-    soundfontUrl: "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/",
+    soundfontUrl: "https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/",
     instruments: INSTRUMENTS,
     onprogress: function (state: any, progress: any) {
       console.log(state, progress);

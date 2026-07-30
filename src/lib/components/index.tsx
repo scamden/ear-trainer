@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { Component } from 'react';
 import toastr = require('toastr');
-import 'toastr/toastr.scss';
+import 'toastr/build/toastr.min.css';
 import _map = require('lodash/map');
 import _reduce = require('lodash/reduce');
 import _range = require('lodash/range');
 
-import * as classnames from 'classnames';
+import classnames from 'classnames';
 
 import { playNote, INSTRUMENTS, setInstrument, midiLoaded } from '../util/midi';
 
@@ -264,7 +264,7 @@ export class MainComponent extends Component<IProps, IState> {
   private renderIntervals(ints: Array<keyof typeof intervals>) {
     return ints.map((intervalNumber) =>
       <button className="btn btn-lg btn-light d-block mt-2 btn-block" key={intervalNumber} onClick={() => {
-        this.identityInterval(parseInt(intervalNumber, 10))
+        this.identityInterval(parseInt(String(intervalNumber), 10))
       }}>{intervals[intervalNumber]}</button>
     )
   }

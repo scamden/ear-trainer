@@ -1,56 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "outDir": "dist",
+    "target": "es2018",
+    "lib": ["es2018", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
-    "declaration": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "noImplicitAny": true,
-    "removeComments": true,
-    "sourceMap": true,
-    "inlineSources": false,
     "strictNullChecks": true,
     "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noUnusedParameters": false,
-    "noUnusedLocals": false,
-    "jsx": "react",
-    "baseUrl": ".",
-    "paths": {
-      "*": [
-        "node_modules/@types/*",
-        "*"
-      ],
-      "@src/*": [
-        "./src/*"
-      ],
-      "@cmpts/*": [
-        "./src/components/*"
-      ],
-      "_variables.scss": [
-        "./src/styles/_variables.scss"
-      ],
-      "_mixins.scss": [
-        "./src/styles/_mixins.scss"
-      ]
-    },
-    "plugins": [
-      {
-        "name": "tslint-language-service"
-      }
-    ]
+    "noImplicitReturns": true
   },
-  "compileOnSave": false,
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "awesomeTypescriptLoaderOptions": {
-    "forkChecker": true,
-    "useBabel": true,
-    "useCache": true
-  }
+  "include": ["src"]
 }

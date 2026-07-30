@@ -1,0 +1,37 @@
+name: build-and-deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# S3 static site. Requires repo secrets AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+# for an IAM user allowed to write to the bucket below.
+env:
+  BUCKET: in-key-ear-trainer
+  AWS_REGION: us-east-1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+      - name: Deploy to S3
+        if: github.ref == 'refs/heads/master'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          # Hashed assets are immutable and cache forever; index.html must always revalidate
+          # so a new deploy is picked up immediately. --delete prunes old hashed bundles.
+          aws s3 sync dist "s3://$BUCKET" --delete \
+            --cache-control "public,max-age=31536000,immutable" --exclude index.html
+          aws s3 cp dist/index.html "s3://$BUCKET/index.html" \
+            --cache-control "no-cache" --content-type "text/html"
