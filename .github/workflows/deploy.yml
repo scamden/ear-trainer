@@ -5,12 +5,6 @@ on:
     branches: [master]
   pull_request:
 
-# S3 static site. Requires repo secrets AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
-# for an IAM user allowed to write to the bucket below.
-env:
-  BUCKET: in-key-ear-trainer
-  AWS_REGION: us-east-1
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,15 +17,12 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
 
-      - name: Deploy to S3
+      # Deploys dist/ to the "ear-trainer" Cloudflare Pages project.
+      # Requires repo secrets CLOUDFLARE_API_TOKEN (Pages: Edit) and CLOUDFLARE_ACCOUNT_ID.
+      - name: Deploy to Cloudflare Pages
         if: github.ref == 'refs/heads/master'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          # Hashed assets are immutable and cache forever; index.html must always revalidate
-          # so a new deploy is picked up immediately. --delete prunes old hashed bundles.
-          aws s3 sync dist "s3://$BUCKET" --delete \
-            --cache-control "public,max-age=31536000,immutable" --exclude index.html
-          aws s3 cp dist/index.html "s3://$BUCKET/index.html" \
-            --cache-control "no-cache" --content-type "text/html"
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=ear-trainer --branch=master
