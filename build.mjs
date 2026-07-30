@@ -20,6 +20,18 @@ const serve = process.argv.includes('--serve');
 
 await rm('dist', { recursive: true, force: true });
 
+/** Inline SVG favicon: a stylized ear on the app's indigo→violet gradient. */
+const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+  </linearGradient></defs>
+  <rect width="32" height="32" rx="8" fill="url(#g)"/>
+  <g fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 22c-2-1.6-3.2-4-3.2-6.8C6.8 10 10.4 6.5 15.4 6.5c4.7 0 8 3 8 7 0 3.4-2.6 5.2-4.9 5.2-1.9 0-3-1.1-3-2.6 0-1.3 1-2 2-2"/>
+    <path d="M11.6 15.4c0-2.2 1.7-3.8 3.9-3.8 2 0 3.4 1.3 3.4 3"/>
+  </g>
+</svg>`;
+
 /** Single source of truth for the HTML shell. Asset tags are injected after bundling. */
 const html = ({ js, css }) => `<!DOCTYPE html>
 <html lang="en">
@@ -27,6 +39,9 @@ const html = ({ js, css }) => `<!DOCTYPE html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <title>Ear Trainer</title>
+  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(favicon)}" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="color-scheme" content="light dark" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800" rel="stylesheet">
   <link rel="stylesheet" href="./${css}">
