@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Component } from 'react';
 import toastr = require('toastr');
 import 'toastr/build/toastr.min.css';
+import './theme.css';
 import _map = require('lodash/map');
 import _reduce = require('lodash/reduce');
 import _range = require('lodash/range');
@@ -263,7 +264,7 @@ export class MainComponent extends Component<IProps, IState> {
 
   private renderIntervals(ints: Array<keyof typeof intervals>) {
     return ints.map((intervalNumber) =>
-      <button className="btn btn-lg btn-light d-block mt-2 btn-block" key={intervalNumber} onClick={() => {
+      <button className="et-answer" key={intervalNumber} onClick={() => {
         this.identityInterval(parseInt(String(intervalNumber), 10))
       }}>{intervals[intervalNumber]}</button>
     )
@@ -272,62 +273,76 @@ export class MainComponent extends Component<IProps, IState> {
   render() {
     const { className } = this.props;
     const longStats = this.getLongTermStats();
+    const pct = (s: IStats) => ((s.correct / (s.total || 1)) * 100).toFixed(0);
     return (
-      <div className={classnames(className, 'p-3 d-flex flex-column')}>
-        <div>
-          <h1 className="ml-3">Ear Trainer</h1>
-          <div className={classnames('ml-3 collapse', { 'show': this.state.statsOpen })}>
-            <div>{this.state.stats.correct} out of {this.state.stats.total} correct</div>
-            <div>Avg Correct: {((this.state.stats.correct / (this.state.stats.total || 1)) * 100).toFixed(2)}%</div>
-            <div>{longStats.correct} out of {longStats.total} correct long term</div>
-            <div>Avg Correct Long Term: {((longStats.correct / (longStats.total || 1)) * 100).toFixed(2)}%</div>
+      <div className={classnames(className, 'et-app')}>
+        <div className="et-card">
+          <header className="et-header">
+            <h1 className="et-title">Ear Trainer</h1>
+            <p className="et-tagline">Listen, then name the interval you hear.</p>
+          </header>
+
+          <div className="et-toolbar">
+            <div className="et-btn-row">
+              <button className="et-btn et-btn-primary" disabled={this.state.loading} onClick={() => {
+                this.playRandomInterval();
+              }}>{this.state.loading && 'Loading…' || 'Begin'}</button>
+              <button className="et-btn et-btn-outline" onClick={this.repeat}>Repeat</button>
+            </div>
+            <div className="et-btn-row">
+              <button onClick={this.toggleSettings} className={classnames('et-btn et-btn-toggle', { 'active': this.state.settingsOpen })}>Settings</button>
+              <button onClick={this.toggleStats} className={classnames('et-btn et-btn-toggle', { 'active': this.state.statsOpen })}>Stats</button>
+            </div>
           </div>
-        </div>
-        <div className="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-          <div className="btn-group ml-3 mt-2" role="group" aria-label="Basic example">
-            <button className="btn btn-md btn-primary" disabled={this.state.loading} onClick={() => {
-              const interval = this.playRandomInterval();
-            }}>{this.state.loading && 'Loading...' || 'Begin'}</button>
-            <button className="btn btn-md btn-primary" onClick={this.repeat}>Repeat</button>
+
+          <div className={classnames('et-panel collapse', { 'show': this.state.statsOpen })}>
+            <p className="et-panel-title">Stats</p>
+            <div className="et-stats">
+              <div className="et-stat">
+                <div className="et-stat-value">{this.state.stats.correct}/{this.state.stats.total}</div>
+                <div className="et-stat-label">This session ({pct(this.state.stats)}%)</div>
+              </div>
+              <div className="et-stat">
+                <div className="et-stat-value">{longStats.correct}/{longStats.total}</div>
+                <div className="et-stat-label">All time ({pct(longStats)}%)</div>
+              </div>
+            </div>
           </div>
-          <div className="btn-group btn-group-toggle ml-3 mt-2" role="group" aria-label="Basic example">
-            <button onClick={this.toggleSettings} className={classnames("btn btn-md btn-light", { 'active': this.state.settingsOpen })}>Settings</button>
-            <button onClick={this.toggleStats} className={classnames("btn btn-md btn-light", { 'active': this.state.statsOpen })}>Stats</button>
-          </div>
-          <div className={classnames('collapse', { 'show': this.state.settingsOpen })}>
-            <div className="btn-group btn-group-toggle ml-3 mt-2" role="group" aria-label="Basic example">
+
+          <div className={classnames('et-panel collapse', { 'show': this.state.settingsOpen })}>
+            <p className="et-panel-title">Settings</p>
+            <div className="et-group">
               <button type="button" onClick={
                 () => { this.setOptions({ ascending: !this.state.options.ascending }) }
-              } className={classnames({ 'active': this.state.options.ascending }, "btn btn-light")}>Ascending</button>
+              } className={classnames('et-btn et-btn-toggle', { 'active': this.state.options.ascending })}>Ascending</button>
               <button type="button" onClick={
                 () => { this.setOptions({ descending: !this.state.options.descending }) }
-              } className={classnames({ 'active': this.state.options.descending }, "btn btn-light")}>Descending</button>
+              } className={classnames('et-btn et-btn-toggle', { 'active': this.state.options.descending })}>Descending</button>
               <button type="button" onClick={
                 () => { this.setOptions({ harmonic: !this.state.options.harmonic }) }
-              } className={classnames({ 'active': this.state.options.harmonic }, "btn btn-light")}>Harmonic</button>
+              } className={classnames('et-btn et-btn-toggle', { 'active': this.state.options.harmonic })}>Harmonic</button>
+              <button type="button" onClick={
+                () => { this.setOptions({ mix: !this.state.options.mix }) }
+              } className={classnames('et-btn et-btn-toggle', { 'active': this.state.options.mix })}>Mix Instruments</button>
             </div>
-            <div className="btn-group ml-3 mt-2" role="group" aria-label="Basic example">
-              <div className="input-group">
-                <div className="input-group-prepend">
-                  <span className="input-group-text" id="inputGroup-sizing-default">Constrain to key: </span>
-                </div>
+            <div className="et-group">
+              <label className="et-field">
+                <span className="et-field-label">Constrain to key</span>
                 <select
-                  className="custom-select"
+                  className="et-select"
                   value={this.state.options.keyRoot}
                   onChange={(e) => { this.setOptions({ keyRoot: e.target.value }) }}
                 >
-                  <option value="">-</option>
+                  <option value="">Any</option>
                   {keys.map((keyRoot) => <option key={keyRoot} value={keyRoot}>{keyRoot}</option>)}
                 </select>
-              </div>
+              </label>
             </div>
-            <div className="btn-group ml-3 mt-2" role="group" aria-label="Basic example">
-              <div className="input-group">
-                <div className="input-group-prepend">
-                  <span className="input-group-text" id="inputGroup-sizing-default">Select instruments: </span>
-                </div>
+            <div className="et-group">
+              <label className="et-field">
+                <span className="et-field-label">Instruments (⌘/Ctrl-click for multiple)</span>
                 <select
-                  className="custom-select"
+                  className="et-select"
                   multiple={true}
                   defaultValue={this.state.options.instruments}
                   onChange={(e) => {
@@ -337,30 +352,20 @@ export class MainComponent extends Component<IProps, IState> {
                 >
                   {INSTRUMENTS.map((instrument) => <option key={instrument} value={instrument} >{instrument}</option>)}
                 </select>
+              </label>
+            </div>
+          </div>
+
+          {
+            this.state.currentInterval != null &&
+            <div className="et-answers">
+              <p className="et-answers-prompt">The interval was…</p>
+              <div className="et-answer-grid">
+                {this.renderIntervals(sortedIntervals)}
               </div>
             </div>
-            <div className="btn-group btn-group-toggle ml-3 mt-2" role="group" aria-label="Basic example">
-              <button type="button" onClick={
-                () => { this.setOptions({ mix: !this.state.options.mix }) }
-              } className={classnames({ 'active': this.state.options.mix }, 'btn btn-light')}>Mix Instruments</button>
-
-            </div>
-          </div>
+          }
         </div>
-
-        {
-          this.state.currentInterval != null &&
-          <div className="flex-row d-flex">
-
-            <div className="mt-3 w-50 mr-1">
-              The interval was
-              {this.renderIntervals(sortedIntervals.filter((int, i) => i < 6))}
-            </div>
-            <div className="mt-3 w-50 ml-1">
-              {this.renderIntervals(sortedIntervals.filter((int, i) => i >= 6))}
-            </div>
-          </div>
-        }
       </div>
     );
   }

@@ -20,6 +20,15 @@ const serve = process.argv.includes('--serve');
 
 await rm('dist', { recursive: true, force: true });
 
+/** Inline SVG favicon: an eighth note on the app's indigo→violet gradient. */
+const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+  </linearGradient></defs>
+  <rect width="32" height="32" rx="8" fill="url(#g)"/>
+  <path fill="#fff" d="M20 7v11.2a3.5 3.5 0 1 1-2-3.16V10.5l-7 1.6v8.1a3.5 3.5 0 1 1-2-3.16V9.3l11-2.5z"/>
+</svg>`;
+
 /** Single source of truth for the HTML shell. Asset tags are injected after bundling. */
 const html = ({ js, css }) => `<!DOCTYPE html>
 <html lang="en">
@@ -27,6 +36,9 @@ const html = ({ js, css }) => `<!DOCTYPE html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <title>Ear Trainer</title>
+  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(favicon)}" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="color-scheme" content="light dark" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800" rel="stylesheet">
   <link rel="stylesheet" href="./${css}">
