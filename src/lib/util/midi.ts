@@ -81,7 +81,8 @@ export const INSTRUMENTS = [
   "pad_7_halo",
   "pad_8_sweep",
   "pan_flute",
-  "percussion",
+  // ponytail: "percussion" removed — no such file in gleitz FluidR3_GM soundfonts (404),
+  // and MIDI.loadPlugin blocks onsuccess until every instrument loads, hanging the app at "Loading...".
   "percussive_organ",
   "piccolo",
   "recorder",
