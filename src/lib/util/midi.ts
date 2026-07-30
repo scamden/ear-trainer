@@ -81,7 +81,8 @@ export const INSTRUMENTS = [
   "pad_7_halo",
   "pad_8_sweep",
   "pan_flute",
-  "percussion",
+  // ponytail: "percussion" removed — no such file in gleitz FluidR3_GM soundfonts (404),
+  // and MIDI.loadPlugin blocks onsuccess until every instrument loads, hanging the app at "Loading...".
   "percussive_organ",
   "piccolo",
   "recorder",
@@ -125,29 +126,33 @@ export const INSTRUMENTS = [
   "xylophone"
 ];
 
-export const midiLoaded: Promise<void> = new Promise<void>((r) => {
-  MIDI.loadPlugin({
-    soundfontUrl: "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/",
-    instruments: INSTRUMENTS,
-    onprogress: function (state: any, progress: any) {
-      console.log(state, progress);
-    },
-    onsuccess: function () {
+const SOUNDFONT_URL = "https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/";
 
-      // play the note
-      MIDI.setVolume(0, 127);
-      r();
-    }
-  });
+// Load soundfonts on demand, one instrument at a time, and remember what's in flight.
+// Preloading all ~110 instruments meant decoding ~9,600 samples before the app was
+// usable; it only ever plays the instrument(s) the user has selected (piano by default).
+const loadingByInstrument = new Map<string, Promise<void>>();
+
+const loadInstrument = (instrument: string): Promise<void> => {
+  let loading = loadingByInstrument.get(instrument);
+  if (!loading) {
+    loading = new Promise<void>((resolve) => {
+      MIDI.loadPlugin({ soundfontUrl: SOUNDFONT_URL, instruments: [instrument], onsuccess: resolve });
+    });
+    loadingByInstrument.set(instrument, loading);
+  }
+  return loading;
+};
+
+// The UI gates on this: ready as soon as the default instrument is playable.
+export const midiLoaded: Promise<void> = loadInstrument('acoustic_grand_piano').then(() => {
+  MIDI.setVolume(0, 127);
 });
 
 export const setInstrument = async (instrument: string) => {
-  await midiLoaded;
+  await loadInstrument(instrument);
   MIDI.programChange(0, MIDI.GM.byName[instrument].number);
 }
-
-setInstrument('acoustic_grand_piano')
-
 
 export async function playNote(note: number, delay: number = 0) {
   await midiLoaded;

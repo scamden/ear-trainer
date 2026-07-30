@@ -8,7 +8,20 @@
  
  Currently all intervals are included in the randomization, but if you need to select specific intervals let me know and I can probably add it :)
  
- Currently hosted at: http://s3.amazonaws.com/in-key-ear-trainer/index.html
+ Currently hosted at: https://ear-trainer-ynb.pages.dev
+
+## Development
+
+```
+npm install
+npm run dev        # esbuild dev server with live reload
+npm run build      # production build to dist/
+npm run typecheck  # tsc --noEmit
+```
+
+Pushing to `master` builds and deploys `dist/` to Cloudflare Pages (project
+`ear-trainer`) via GitHub Actions (`.github/workflows/deploy.yml`). Requires repo
+secrets `CLOUDFLARE_API_TOKEN` (Pages: Edit) and `CLOUDFLARE_ACCOUNT_ID`.
 
 Many thanks to [MIDI.js](https://github.com/mudcube/MIDI.js) for making this at all possible (and also pleaz stop using globals and support commonjs cause i mean it's 2018 :P https://github.com/mudcube/MIDI.js/issues/24)
 
