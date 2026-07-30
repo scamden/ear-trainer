@@ -184,9 +184,9 @@ export class MainComponent extends Component<IProps, IState> {
     if (state.currentNotes == undefined) {
       return;
     }
-    setInstrument(this.state.currentInstruments && this.state.currentInstruments[0] || 'acoustic_grand_piano');
+    await setInstrument(this.state.currentInstruments && this.state.currentInstruments[0] || 'acoustic_grand_piano');
     await playNote(state.currentNotes[0]);
-    setInstrument(this.state.currentInstruments && this.state.currentInstruments[1] || 'acoustic_grand_piano');
+    await setInstrument(this.state.currentInstruments && this.state.currentInstruments[1] || 'acoustic_grand_piano');
     await playNote(state.currentNotes[1], state.shouldPlayIntervalHarmonically ? 0 : 1);
   }
 
